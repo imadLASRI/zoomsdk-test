@@ -16,9 +16,9 @@
   let pw = params.get("pw");
   let name = params.get("name");
 
-  console.log("mn : " + mn);
-  console.log("pw : " + pw);
-  console.log("name : " + name);
+  // console.log("mn : " + mn);
+  // console.log("pw : " + pw);
+  // console.log("name : " + name);
 
   if (name !== null) {
     $("#display_name").val(name);
@@ -40,25 +40,21 @@
     }
 
     // CORS problem fixed temporarly
-    fetch(
-      "https://cors-anywhere.herokuapp.com/https://saszoom.herokuapp.com/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // mode: "no-cors",
-        body: JSON.stringify({
-          meetingNumber: mn,
-          role: role,
-        }),
-      }
-    )
+    fetch("http://f0d23c6aae51.ngrok.io/api/zoom/signature", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // mode: "no-cors",
+      body: JSON.stringify({
+        meeting_number: mn,
+        role: role,
+      }),
+    })
       .then((response) => response.json())
       .then((data) => {
-        // console.log("Success: ", data.signature);
         // GOT SIGNATURE
-        sign = data.signature;
+        sign = data;
 
         // INIT and Join Meeting
         ZoomMtg.init({
@@ -66,44 +62,41 @@
           isSupportAV: true,
           success: function () {
             $.i18n.reload("fr-FR");
-            function joinZoom() {
-              ZoomMtg.join({
-                signature: sign,
-                meetingNumber: mn,
-                userName: userName,
-                apiKey: apiKey,
-                userEmail: "Admin@SAS.com",
-                passWord: pw,
-                success: (success) => {
-                  console.log(success);
-                  document.getElementById("connexion").style.display = "none";
-                  document.getElementById("nav-tool").style.background = "none";
-                  $("#nav-tool").css("background", "none !important");
-                  $("#nav-tool").css("height", "0");
-                },
-                error: (error) => {
-                  console.log(error);
 
-                  setTimeout(function () {
-                    if (error) {
-                      $(".zm-modal-footer").css("display", "none");
+            ZoomMtg.join({
+              signature: sign,
+              meetingNumber: mn,
+              userName: userName,
+              apiKey: apiKey,
+              userEmail: "Admin@SAS.com",
+              passWord: pw,
+              success: (success) => {
+                document.getElementById("connexion").style.display = "none";
+                document.getElementById("nav-tool").style.background = "none";
+                $("#nav-tool").css("background", "none !important");
+                $("#nav-tool").css("height", "0");
+              },
+              error: (error) => {
+                console.log(error);
+
+                setTimeout(function () {
+                  if (error) {
+                    $(".zm-modal-footer").css("display", "none");
+                  }
+
+                  $(".ReactModal__Overlay").click(function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (name == null) {
+                      location.replace(window.location + "&name=" + userName);
+                    } else {
+                      location.reload();
                     }
-
-                    $(".ReactModal__Overlay").click(function (e) {
-                      e.preventDefault();
-                      e.stopPropagation();
-
-                      if (name == null) {
-                        location.replace(window.location + "&name=" + userName);
-                      } else {
-                        location.reload();
-                      }
-                    });
-                  }, 300);
-                },
-              });
-            }
-            joinZoom();
+                  });
+                }, 300);
+              },
+            });
           },
         });
       });
