@@ -16,10 +16,6 @@
   let pw = params.get("pw");
   let name = params.get("name");
 
-  // console.log("mn : " + mn);
-  // console.log("pw : " + pw);
-  // console.log("name : " + name);
-
   if (name !== null) {
     $("#display_name").val(name);
   }
@@ -39,18 +35,21 @@
       document.getElementById("loader").style.display = "block";
     }
 
-    // CORS problem fixed temporarly
-    fetch("http://f0d23c6aae51.ngrok.io/api/zoom/signature", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // mode: "no-cors",
-      body: JSON.stringify({
-        meeting_number: mn,
-        role: role,
-      }),
-    })
+    // replace with App url
+    fetch(
+      "https://cors-anywhere.herokuapp.com/https://f0d23c6aae51.ngrok.io/api/zoom/signature",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // mode: "no-cors",
+        body: JSON.stringify({
+          meeting_number: mn,
+          role: role,
+        }),
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
         // GOT SIGNATURE
@@ -68,7 +67,7 @@
               meetingNumber: mn,
               userName: userName,
               apiKey: apiKey,
-              userEmail: "Admin@SAS.com",
+              userEmail: "SAS-meeting@SAS.com",
               passWord: pw,
               success: (success) => {
                 document.getElementById("connexion").style.display = "none";
